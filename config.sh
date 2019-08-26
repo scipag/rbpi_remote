@@ -16,13 +16,12 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-# Array of MACs of all interfaces that may be used to phone home. Currently only
-# contains MAC address of our Huawei e3372 umts stick.
+# Array of MACs of all interfaces that may be used to phone home.
 MACS=()
 
 # List of ip:port combinations to try to ssh into. Values here just for
 # reference.
-HOMES=()
+HOMES=("10.10.9.9:9989" "10.10.9.8:10510")
 
 # Port on which the local ssh server listens
 SSHD_PORT=22
@@ -33,9 +32,9 @@ SSHD_BIN=""
 
 # If set to 1, the script will never start a wireless hotspot.
 #
-# If set to 0, the script will start a wireless hotspot inconspicuously named
-# "John's Iphone" which can be used as a fallback in case broadband internet
-# as primary communication method becomes unavailable.
+# If set to 0, the script will start a wireless hotspot which can be used as a
+# fallback in case broadband internet as primary communication method becomes
+# unavailable.
 DISABLE_HOTSPOT=0
 
 # Access point name
