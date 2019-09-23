@@ -227,7 +227,7 @@ main() {
 
             conf_iface
 
-            wake_iface || { ((FAILURE_REBOOT)) && reboot; } || { rst_iface && continue; }
+            wake_iface || { rst_iface && continue; }
 
 
             # c&c traffic should use the designated interface, also whitelist c&c
