@@ -37,6 +37,8 @@ source "${_scriptdir}/config.sh"
 iprgx='((1?[0-9][0-9]?|25[0-5]|2[0-4][0-9])\.){3}(1?[0-9][0-9]?|25[0-5]|2[0-4][0-9])'
 
 start_hotspot() {
+    pkill hostapd
+    ip addr flush dev $WIRELESS_IFACE
     ip l set dev $WIRELESS_IFACE up
     ip a add $AP_IP dev $WIRELESS_IFACE
     udhcpd "$UDHCPD_DIR/$UDHCPD_FILE"
