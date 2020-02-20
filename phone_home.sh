@@ -153,9 +153,9 @@ wake_iface() {
     local _wait=0
     local _icmp_dst='1.1.1.1'
     local _del_route=0
-    [[ -z "$(ip route show default via "$_gw" dev "$_iface")" ]] &&
+    [[ -z "$(ip route show "$_icmp_dst" via "$_gw" dev "$_iface")" ]] &&
     {
-        ip route add default via "$_gw" dev "$_iface"
+        ip route add "$_icmp_dst" dev "$_iface" proto static scope global via "$_gw"
         _del_route=1
     }
 
@@ -166,7 +166,7 @@ wake_iface() {
 
         ((${loss%%%*}<100)) &&
         {
-            ((_del_route)) && ip route del default via "$_gw" dev "$_iface"
+            ((_del_route)) && ip route del "$_icmp_dst" via "$_gw" dev "$_iface"
             return 0
         }
 
