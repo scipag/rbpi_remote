@@ -17,7 +17,7 @@
 
 
 # Array of MACs of all interfaces that may be used to phone home.
-MACS=()
+MACS=("ca:fe:ba:be:ca:fe" "ba:be:ca:fe:ca:fe")
 
 # List of ip:port combinations to try to ssh into. Values here just for
 # reference.
@@ -38,7 +38,7 @@ SSHD_BIN=""
 DISABLE_HOTSPOT=0
 
 # Access point name
-AP_ESSID="John's Iphone"
+AP_ESSID="John's iPhone"
 
 # Access point password
 AP_PASS="changeme123"
@@ -63,6 +63,10 @@ FAILURE_REBOOT=1
 # Set to 1 to report check failures to /tmp/usb_chk_log without taking further
 # action
 USB_DEBUG=0
+
+# Set to 1 to preserve the configuration and not overwrite it during the
+# preparation in case it already exists.
+PRESERVE_CONFIGURATION=0
 
 # A known good output of lsusb goes here. What is bad lsusb output? Any output
 # containing devices that are not expected. If unexpected devices show up, the
