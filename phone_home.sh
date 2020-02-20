@@ -263,7 +263,7 @@ main() {
             _port="${_elem##*:}"
 
             [[ -n $(hping3 --syn -c 3 $_host -p $_port | grep -m 1 -io "flags=SA") ]] &&
-            ncat $_host $_port --wait 10 --sh-exec "ncat 127.0.0.1 $SSHD_PORT"
+            ncat $_host $_port --wait 10 --idle-timeout 15 --sh-exec "ncat 127.0.0.1 $SSHD_PORT --idle-timeout 15"
         done
 
         sleep 60
