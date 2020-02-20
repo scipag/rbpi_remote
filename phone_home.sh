@@ -206,6 +206,9 @@ conf_iface() {
         dhclient "$_iface" #retry once on failure
     } || reboot
 
+    _gw=$(ip route show default dev $_iface | grep -oE "$iprgx")
+    ip route del default dev "$_iface"
+
     cat /dev/null >/etc/resolv.conf
 }
 
@@ -233,7 +236,6 @@ main() {
             # c&c traffic should use the designated interface, also whitelist c&c
             # traffic so the NAC bypass script doesn't lock the pentester out.
             
-            _gw=$(ip route show default dev $_iface | grep -oE "$iprgx")
             ip route del default dev $_iface
 
             for _host in "${HOMES[@]%:*}"
