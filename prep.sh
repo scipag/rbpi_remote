@@ -78,12 +78,4 @@ else
     printf "%s" "$UNIT_FILE_CONF" >"$UNIT_FILE_DIR/$UNIT_FILE_NAME"
 fi
 
-# rudimentary check for ClientAliveInterval in the default sshd_config
-if [[ -z "$(grep -oiE "^ClientAliveInterval" /etc/ssh/sshd_config)" ]]; then
-    echo "Warning:"
-    echo "Make sure to use a mechanism like SSHs \"ClientAliveInterval\" to avoid connection dropping"
-    echo "and make sure the intervals are lower than what is set with ncats \"--idle-timeout\" option"
-    echo "in the phone_home.sh script"
-fi
-
 systemctl enable "$UNIT_FILE_NAME"
