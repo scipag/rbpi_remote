@@ -64,10 +64,6 @@ FAILURE_REBOOT=1
 # action
 USB_DEBUG=0
 
-# Set to 1 to preserve the configuration and not overwrite it during the
-# preparation in case it already exists.
-PRESERVE_CONFIGURATION=0
-
 # A known good output of lsusb goes here. What is bad lsusb output? Any output
 # containing devices that are not expected. If unexpected devices show up, the
 # rbpi will shut down.
