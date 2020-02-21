@@ -19,13 +19,15 @@
 
 ((UID == 0 || EUID == 0)) || { echo "Script needs root permissions to install packages and write config files" >&2; exit 1; }
 
-apt install udhcpd hping3 ncat iptables usb-modeswitch
+apt install udhcpd hostapd hping3 ncat iptables usb-modeswitch
 
-source config.sh
+_scriptdir=$(dirname "$(readlink -f "$0")")
+
+source "${_scriptdir}/config.sh"
 
 [[ -d "$UDHCPD_DIR" ]] || mkdir -pm 755 "$UDHCPD_DIR"
 
-if [[ -f "$UDHCPD_DIR/$UDHCPD_FILE" ]]
+if [[ -f "$UDHCPD_DIR/$UDHCPD_FILE" && "$PRESERVE_CONFIGURATION" == 1 ]]
 then
     echo "$UDHCPD_DIR/$UDHCPD_FILE exists; will not overwrite"
 else
@@ -34,7 +36,7 @@ fi
 
 [[ -d "$HOSTAPD_DIR" ]] || mkdir -pm 755 "$HOSTAPD_DIR"
 
-if [[ -f "$HOSTAPD_DIR/$HOSTAPD_FILE" ]]
+if [[ -f "$HOSTAPD_DIR/$HOSTAPD_FILE" && "$PRESERVE_CONFIGURATION" == 1 ]]
 then
     echo "$HOSTAPD_DIR/$HOSTAPD_FILE exists, will not overwrite"
 else
@@ -43,10 +45,12 @@ fi
 
 [[ -d "$UNIT_FILE_DIR" ]] || { echo "Systemd directory not found: $UNIT_FILE_DIR" >&2; exit 1; }
 
-if [[ -f "$UNIT_FILE_DIR/$UNIT_FILE_NAME" ]]
+if [[ -f "$UNIT_FILE_DIR/$UNIT_FILE_NAME" && "$PRESERVE_CONFIGURATION" == 1 ]]
 then
     echo "$UNIT_FILE_DIR/$UNIT_FILE_NAME exists, will not overwrite"
     echo "Make sure the path to the phone_home script in the unit file is correct"
 else
     printf "%s" "$UNIT_FILE_CONF" >"$UNIT_FILE_DIR/$UNIT_FILE_NAME"
 fi
+
+systemctl enable "$UNIT_FILE_NAME"
