@@ -198,17 +198,19 @@ conf_iface() {
     # takes:    -
     # returns:  -
 
+    local _leasesfile='/var/lib/dhcp/dhclient.phone_home.leases'
+
     ip route flush dev "$_iface"
     ip addr flush dev "$_iface"
     ip link set dev "$_iface" down
 
-    dhclient "$_iface" ||
+    dhclient -lf "$_leasesfile" "$_iface" ||
     {
         sleep 15
-        dhclient "$_iface" #retry once on failure
+        dhclient -lf "$_leasesfile" "$_iface" #retry once on failure
     } || reboot
 
-    _gw=$(ip route show default dev $_iface | grep -oE "$iprgx")
+    _gw=$(grep -m 1 'option routers' "$_leasesfile" | sed -E 's/.+ (.+?);/\1/')
     ip route del default dev "$_iface"
 
     cat /dev/null >/etc/resolv.conf
