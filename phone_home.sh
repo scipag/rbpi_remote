@@ -39,8 +39,8 @@ iprgx='((1?[0-9][0-9]?|25[0-5]|2[0-4][0-9])\.){3}(1?[0-9][0-9]?|25[0-5]|2[0-4][0
 start_hotspot() {
     pkill hostapd
     ip addr flush dev $WIRELESS_IFACE
-    ip l set dev $WIRELESS_IFACE up
-    ip a add $AP_IP dev $WIRELESS_IFACE
+    ip link set dev $WIRELESS_IFACE up
+    ip addr add $AP_IP dev $WIRELESS_IFACE
     udhcpd "$UDHCPD_DIR/$UDHCPD_FILE"
     hostapd -B "$HOSTAPD_DIR/$HOSTAPD_FILE"
 }
@@ -155,9 +155,9 @@ wake_iface() {
     local _wait=0
     local _icmp_dst='1.1.1.1'
     local _del_route=0
-    [[ -z "$(ip route show "$_icmp_dst" via "$_gw" dev "$_iface")" ]] &&
+    [[ -z "$(ip route show "$_icmp_dst" via "$_gw" proto static scope global dev "$_iface")" ]] &&
     {
-        ip route add "$_icmp_dst" dev "$_iface" proto static scope global via "$_gw"
+        ip route add "$_icmp_dst" via "$_gw" proto static scope global dev "$_iface"
         _del_route=1
     }
 
@@ -168,7 +168,7 @@ wake_iface() {
 
         ((${loss%%%*}<100)) &&
         {
-            ((_del_route)) && ip route del "$_icmp_dst" via "$_gw" dev "$_iface"
+            ((_del_route)) && ip route del "$_icmp_dst" via "$_gw" proto static scope global dev "$_iface"
             return 0
         }
 
@@ -238,8 +238,6 @@ main() {
             # c&c traffic should use the designated interface, also whitelist c&c
             # traffic so the NAC bypass script doesn't lock the pentester out.
             
-            ip route del default dev $_iface
-
             for _host in "${HOMES[@]%:*}"
             do
                 [[ -z "$(ip route show $_host dev $_iface proto static scope global via $_gw)" ]] &&
